@@ -1,0 +1,26 @@
+.error {
+    color: red;
+    font-size: 14px;
+    display: block;  /* Importante para que se vea debajo del input */
+    margin-top: 4px;
+}
+
+
+
+
+/*es para los botones de enviar y crear usuario*/
+.btn-marron {
+  background-color: #856133;
+  color: #fff;
+  border: 1px solid #856133;
+}
+
+.btn-marron:hover {
+  background-color: #a0734f;
+  border-color: #a0734f;
+}
+
+.btn-marron:active {
+  background-color: #704f33;
+  border-color: #704f33;
+}
