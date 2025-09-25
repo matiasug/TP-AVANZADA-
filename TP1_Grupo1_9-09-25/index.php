@@ -1,3 +1,14 @@
+<?php
+    // Iniciar la sesión al principio del script
+    session_start();
+
+    // --- GENERACIÓN DE TOKEN CSRF ---
+    // Generamos un token para proteger el formulario contra ataques CSRF.
+    if (empty($_SESSION['token'])) {
+        $_SESSION['token'] = bin2hex(random_bytes(32));
+    }
+    $token = $_SESSION['token'];
+?>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light">
    <?php require_once("header.php")?>
@@ -53,8 +64,18 @@
             <input type="password" id="cont" name="cont" class="form-control" placeholder="password" required>
           </div>
 
+          <div class="mb-3">
+              <label for="rand_code" class="form-label">Código de seguridad:</label>
+              <div class="d-flex align-items-center">
+                  <img src="includes/rdnimg.php" alt="CAPTCHA" class="me-2">
+                  <input type="text" class="form-control" name="rand_code" id="rand_code" placeholder="Ingrese el código" required>
+              </div>
+          </div>
+
           <button type="submit" class="btn btn-marron w-100 fw-bold mb-2">Iniciar sesión</button>
-          <button href="ProcesarLogin.php"  type="submit" class="btn btn-marron w-100 fw-bold mb-2">Crear una cuenta</button>
+
+          <!--enlace a la página de registro -->
+          <a href="ProcesarUsuario.php" class="btn btn-marron w-100 fw-bold mb-2">Crear una cuenta</a>
         </form>
 
       </div>
@@ -63,7 +84,3 @@
   </main>
   
 <?php require_once('footer.php') ?> 
-
-
-
-
