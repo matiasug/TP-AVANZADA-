@@ -10,7 +10,7 @@
 
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light">
-   <?php require_once("./Inlcudes/header.php")?>
+   <?php require_once("./Includes/header.php")?>
       <script src="Verificar.js"></script>
       <link href="bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
       <link href="css/estilos.css" rel="stylesheet">
@@ -73,13 +73,13 @@
               <label for="rand_code" class="form-label">Código de seguridad:</label>
               <div class="d-flex align-items-center">
                   <!-- ruta de la imagen del CAPTCHA -->
-                  <img src="Inlcudes/rdnimg.php" alt="CAPTCHA" class="me-2 rounded" style="border: 1px solid #ccc;">
+                  <img src="Includes/rdnimg.php" alt="CAPTCHA" class="me-2 rounded" style="border: 1px solid #ccc;">
                   <input type="text" class="form-control" name="rand_code" id="rand_code" placeholder="Ingrese el código" required>
                   </div>
           </div>
 
           <button type="submit" class="btn btn-marron w-100 fw-bold mb-2">Iniciar sesión</button>
-        </form> 
+        </form>
         <a href="FormPersonas.php" class="btn btn-marron w-100 fw-bold mb-2 mt-2">Crear una cuenta</a>
 
       </div>
