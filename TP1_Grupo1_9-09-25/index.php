@@ -79,8 +79,8 @@
           </div>
 
           <button type="submit" class="btn btn-marron w-100 fw-bold mb-2">Iniciar sesión</button>
-        </form>
-        <a href="registro.php" class="btn btn-marron w-100 fw-bold mb-2 mt-2">Crear una cuenta</a>
+        </form> 
+        <a href="FormPersonas.php" class="btn btn-marron w-100 fw-bold mb-2 mt-2">Crear una cuenta</a>
 
       </div>
     </div>
