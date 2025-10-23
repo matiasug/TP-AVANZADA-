@@ -2,6 +2,7 @@
 <html lang="es" data-bs-theme="light">
    <?php require_once("header.php")?>
       <script src="Verificar.js"></script>
+      <script src="SHA512.js"></script>
       <link href="bootstrap-5.3.3-dist/css/bootstrap.min.css" rel="stylesheet">
       <link href="css/estilos.css" rel="stylesheet">
 

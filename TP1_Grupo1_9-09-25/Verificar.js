@@ -68,7 +68,10 @@ class FormLogin {
             contrasena.classList.add('is-valid');
             contrasena.classList.remove('is-invalid');
         }
-
+        let psswHasheada = sha512(passwordValida);
+        console.log(psswHasheada);//pa 
+        //si la contraseña pasa todas estas pruebas, aca la hasheas con sha512 - uno de los algoritmos que mas se usa
+        
         return formValido;
     }
 }
@@ -81,6 +84,12 @@ document.addEventListener("DOMContentLoaded", function() {
         if (!formLogin.validoInputsIndividual()) {
             event.preventDefault(); // Evita enviar si hay errores
         }
+        //aca deberian hacer un form oculto para mandar los datos
+        var form = new FormData();
+        const nombre = document.getElementById('nombre');
+        form.append(nombreF, nombre);//nombre del campo del form - la variable que contiene el valor
+        //asi van haciendo con los demas datos
+        //le hacen form.submit();
     });
 });
 
