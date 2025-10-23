@@ -3,8 +3,11 @@ session_start();
 ?>
 <!DOCTYPE html>
 <html lang="es">
-   <?php require_once("./Inlcudes/header.php")?>
+   <?php require_once("./Includes/header.php")?>
 <br>
+<body class="d-flex flex-column min-vh-100"
+      style="background: url('imgs/fondo1.jpg') no-repeat center center fixed; background-size: cover;">
+
     <h4 class="text-center">Sistema Recursos Humanos</h4>
     <div class="container d-flex justify-content-center">
 
@@ -36,5 +39,6 @@ session_start();
 
     </div>
     <br>
-   <?php require_once("./Inlcudes/footer.php")?>
+   <?php require_once("./Includes/footer.php")?>
+   </body>
 </html>

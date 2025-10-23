@@ -8,10 +8,10 @@ $vPersonas = isset($_SESSION['personas']) ? $_SESSION['personas'] : [];
 ?>
 <!DOCTYPE html>
 <html lang="es">
-    <?php require_once("./Inlcudes/header.php")?>
-   
+    <?php require_once("./Includes/header.php")?>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100"
+      style="background: url('imgs/fondo1.jpg') no-repeat center center fixed; background-size: cover;">
 
 <main class="container flex-fill">
     <br>
@@ -45,4 +45,5 @@ $vPersonas = isset($_SESSION['personas']) ? $_SESSION['personas'] : [];
 </main>
 
 <?php require_once("./Inlcudes/footer.php")?>
+</body>
 </html>

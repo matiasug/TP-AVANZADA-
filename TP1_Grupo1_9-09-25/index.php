@@ -12,8 +12,7 @@
 <html lang="es" data-bs-theme="light">
    <?php require_once("./Includes/header.php")?>
       <script src="Verificar.js"></script>
-      <link href="bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
-      <link href="css/estilos.css" rel="stylesheet">
+    
 
 <body class="d-flex flex-column min-vh-100"
       style="background: url('imgs/fondo1.jpg') no-repeat center center fixed; background-size: cover;">

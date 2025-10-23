@@ -13,10 +13,10 @@ $correo_usuario = $_SESSION['datos_usuario']['correo'];
 ?>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light">
-    <?php require_once("./Inlcudes/header.php")?>
-    <link href="css/estilos.css" rel="stylesheet">
+    <?php require_once("./Includes/header.php")?>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100"
+      style="background: url('imgs/fondo1.jpg') no-repeat center center fixed; background-size: cover;">
     <main class="flex-fill d-flex justify-content-center align-items-center">
         <div class="card shadow-lg p-4">
             <div class="card-body">

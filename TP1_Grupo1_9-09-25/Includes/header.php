@@ -3,10 +3,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no ">
     <title>BOOKSY</title>
     <link rel="icon" href="imgs/logo12.ico" type="image/x-icon">
-    <link href="bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
    
+    <link href="bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/estilos.css" rel="stylesheet">
 </head>
 
 <nav class="navbar navbar-expand-lg navbar-light" 
@@ -25,4 +24,3 @@
     </span>
   </div>
 </nav>
-
