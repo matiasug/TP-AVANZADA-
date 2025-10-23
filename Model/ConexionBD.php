@@ -4,8 +4,8 @@ session_start();
 class Conexion {
     private static $mysqli;
     private static $host = '127.0.0.1';
-    private static $user = '2025_grupo1';
-    private static $pass = 'gRupp2#0348*';
+    private static $user = 'root';
+    private static $pass = '';
     private static $db = '2025_grupo1';
 
     public static function obtenerConexion() {
@@ -31,7 +31,6 @@ class Persona{
     private $documento;
 	private $apellido;
     private $nombres;
-    private $telefono = null; // Lo mantenemos para evitar errores, pero no lo usaremos en las queries.
     private $mysqli;
 
 	
@@ -83,12 +82,6 @@ class Persona{
             $this->nombres = $nombres;
         }
 
-    }
-
-    public function setTelefono($telefono)
-    {
-        // Este método existe pero no afectará a la base de datos.
-        $this->telefono = $telefono;
     }
 
 
@@ -152,12 +145,9 @@ class Persona{
     {
         //idPersona es AUTO_INCREMENT
         $sql = "INSERT INTO personas (documento, apellido, nombres, telefono) VALUES (?, ?, ?, ?)"; // El teléfono puede ser null
-        $sql = "INSERT INTO personas (documento, apellido, nombres) VALUES (?, ?, ?)";
         $stmt = $this->mysqli->prepare($sql);
         // 'isss' indica los tipos: integer, string, string, string
         $stmt->bind_param('isss', $this->documento, $this->apellido, $this->nombres);
-        // 'iss' indica los tipos: integer, string, string
-        $stmt->bind_param('iss', $this->documento, $this->apellido, $this->nombres);
         if ($stmt->execute()) {
             $stmt->close();
             return $this->mysqli->insert_id; // Devolvemos el ID del nuevo registro.
@@ -169,12 +159,9 @@ class Persona{
     public function update()
     {
         $sql = "UPDATE personas SET documento = ?, apellido = ?, nombres = ?, telefono = ? WHERE idPersona = ?";
-        $sql = "UPDATE personas SET documento = ?, apellido = ?, nombres = ? WHERE idPersona = ?";
         $stmt = $this->mysqli->prepare($sql);
         // 'isssi' indica los tipos: integer, string, string, string, integer
         $stmt->bind_param('isssi', $this->documento, $this->apellido, $this->nombres,$this->idPersona);
-        // 'issi' indica los tipos: integer, string, string, integer
-        $stmt->bind_param('issi', $this->documento, $this->apellido, $this->nombres, $this->idPersona);
         $stmt->execute();
         $stmt->close();
     }
