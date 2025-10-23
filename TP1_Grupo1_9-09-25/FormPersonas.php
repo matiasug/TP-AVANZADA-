@@ -28,6 +28,16 @@ session_start();
             <label for="apellido">Apellido</label>
             <input type="text" class="form-control" id="apellido" name="apellido" required>
           </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="email">Correo Electrónico</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label for="password">Contraseña</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
         </div>
 
         <div class="d-grid gap-2">

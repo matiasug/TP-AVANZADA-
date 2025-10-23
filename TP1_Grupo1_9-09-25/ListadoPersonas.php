@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// vector de personas directamente de la sesión.
 // Si no existe, lo inicializamos como un array vacío 
 $vPersonas = isset($_SESSION['personas']) ? $_SESSION['personas'] : [];
 

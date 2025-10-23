@@ -1,30 +1,44 @@
 <?php
 session_start();
 
+class Conexion {
+    private static $mysqli;
+    private static $host = '127.0.0.1';
+    private static $user = '2025_grupo1';
+    private static $pass = 'gRupp2#0348*';
+    private static $db = '2025_grupo1';
+
+    public static function obtenerConexion() {
+        if (!isset(self::$mysqli)) {
+            self::$mysqli = new mysqli(self::$host, self::$user, self::$pass, self::$db);
+            if (self::$mysqli->connect_error) {
+                // En producción, registrar el error en lugar de mostrarlo.
+                error_log('Error de Conexión: ' . self::$mysqli->connect_error);
+                // Mostrar un mensaje genérico al usuario.
+                die('Error: No se pudo conectar a la base de datos.');
+            }
+            self::$mysqli->set_charset("utf8mb4");
+        }
+        return self::$mysqli;
+    }
+
+    private function __construct() {} 
+}
+
 class Persona{
 	
     private $idPersona;
     private $documento;
 	private $apellido;
     private $nombres;
-    private $telefono;
-
+    private $telefono = null; // Lo mantenemos para evitar errores, pero no lo usaremos en las queries.
     private $mysqli;
 
 	
     public function __construct()
     {
-        $this->mysqli = new mysqli('127.0.0.1', 'root', '', 'Booksy_BD');
-		// Es crucial verificar si la conexión falló.
-		if ($this->mysqli->connect_error) {
-			// En un entorno de producción, registrarías el error en lugar de mostrarlo.
-			die('Error de Conexión (' . $this->mysqli->connect_errno . ') ' . $this->mysqli->connect_error);
-		}
-	}
-
-	public function __destruct()
-	{
-		$this->mysqli->close();
+        // Obtenemos la conexión única.
+        $this->mysqli = Conexion::obtenerConexion();
 	}
 
     public function setidPersona($idPersona)
@@ -51,7 +65,8 @@ class Persona{
     public function setApellido($apellido)
     {
 
-        if ( ctype_alpha($apellido)==true )
+        // Permitimos letras y espacios, útil para apellidos compuestos.
+        if (preg_match('/^[a-zA-Z\s]+$/', $apellido))
         {
             $this->apellido = $apellido;
         }
@@ -62,7 +77,8 @@ class Persona{
     public function setNombres($nombres)
     {
 
-        if ( ctype_alpha($nombres)==true )
+        // Permitimos letras y espacios, útil para nombres compuestos.
+        if (preg_match('/^[a-zA-Z\s]+$/', $nombres))
         {
             $this->nombres = $nombres;
         }
@@ -71,13 +87,11 @@ class Persona{
 
     public function setTelefono($telefono)
     {
-
-        if ( ctype_alnum($telefono)==true )
-        {
-            $this->telefono = $telefono;
-        }
-
+        // Este método existe pero no afectará a la base de datos.
+        $this->telefono = $telefono;
     }
+
+
 
     public function toArray()
     {
@@ -85,7 +99,7 @@ class Persona{
             'documento'=>$this->documento,
             'apellido'=>$this->apellido,
             'nombres'=>$this->nombres,
-            'telefono'=>$this->telefono,
+          
         );
 
         return $vPersona;
@@ -136,22 +150,31 @@ class Persona{
 
     public function save()
     {
-        // Asumo que idPersona es AUTO_INCREMENT
-        $sql = "INSERT INTO personas (documento, apellido, nombres, telefono) VALUES (?, ?, ?, ?)";
+        //idPersona es AUTO_INCREMENT
+        $sql = "INSERT INTO personas (documento, apellido, nombres, telefono) VALUES (?, ?, ?, ?)"; // El teléfono puede ser null
+        $sql = "INSERT INTO personas (documento, apellido, nombres) VALUES (?, ?, ?)";
         $stmt = $this->mysqli->prepare($sql);
         // 'isss' indica los tipos: integer, string, string, string
-        $stmt->bind_param('isss', $this->documento, $this->apellido, $this->nombres, $this->telefono);
-        $stmt->execute();
-        $stmt->close();
+        $stmt->bind_param('isss', $this->documento, $this->apellido, $this->nombres);
+        // 'iss' indica los tipos: integer, string, string
+        $stmt->bind_param('iss', $this->documento, $this->apellido, $this->nombres);
+        if ($stmt->execute()) {
+            $stmt->close();
+            return $this->mysqli->insert_id; // Devolvemos el ID del nuevo registro.
+        }
+        return false; // Devolvemos falso si hubo un error.
     }
     
 
     public function update()
     {
         $sql = "UPDATE personas SET documento = ?, apellido = ?, nombres = ?, telefono = ? WHERE idPersona = ?";
+        $sql = "UPDATE personas SET documento = ?, apellido = ?, nombres = ? WHERE idPersona = ?";
         $stmt = $this->mysqli->prepare($sql);
         // 'isssi' indica los tipos: integer, string, string, string, integer
-        $stmt->bind_param('isssi', $this->documento, $this->apellido, $this->nombres, $this->telefono, $this->idPersona);
+        $stmt->bind_param('isssi', $this->documento, $this->apellido, $this->nombres,$this->idPersona);
+        // 'issi' indica los tipos: integer, string, string, integer
+        $stmt->bind_param('issi', $this->documento, $this->apellido, $this->nombres, $this->idPersona);
         $stmt->execute();
         $stmt->close();
     }
@@ -182,16 +205,9 @@ class Libro{
 
     public function __construct()
     {
-        $this->mysqli = new mysqli('127.0.0.1', 'root', '', 'Booksy_BD');
-		if ($this->mysqli->connect_error) {
-			die('Error de Conexión (' . $this->mysqli->connect_errno . ') ' . $this->mysqli->connect_error);
-		}
+        // Obtenemos la conexión única.
+        $this->mysqli = Conexion::obtenerConexion();
     }
-
-    public function __destruct()
-	{
-		$this->mysqli->close();
-	}
 
     public function setIdLibro($idlibro)
     {
@@ -303,16 +319,9 @@ class DatosPersona{
 
     public function __construct()
     {
-        $this->mysqli = new mysqli('127.0.0.1', 'root', '', 'Booksy_BD');
-		if ($this->mysqli->connect_error) {
-			die('Error de Conexión (' . $this->mysqli->connect_errno . ') ' . $this->mysqli->connect_error);
-		}
+        // Obtenemos la conexión única.
+        $this->mysqli = Conexion::obtenerConexion();
     }
-
-    public function __destruct()
-	{
-		$this->mysqli->close();
-	}
 
     // Setters
     public function setIdPersona($idPersona)

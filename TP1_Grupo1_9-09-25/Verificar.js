@@ -92,5 +92,3 @@ document.addEventListener("DOMContentLoaded", function() {
         //le hacen form.submit();
     });
 });
-
-
