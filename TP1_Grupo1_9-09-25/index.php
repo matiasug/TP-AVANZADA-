@@ -57,12 +57,11 @@
             <label for="nombre" class="form-label">Nombre</label>
             <input type="text" class="form-control" id="nombre" name="nombre" placeholder="name" required>
           </div>
-  <!--  CAMBIAR EL PROCESAR PARA QUE NO PROCESE EL correo y asi nos deje entrar
           <div class="mb-2">
             <label for="correo" class="form-label">Correo</label>
             <input type="email" class="form-control" id="correo" name="correo" placeholder="example@email.com" required>
           </div>
- --> 
+ 
           <div class="mb-3">
             <label for="cont" class="form-label">Contraseña</label>
             <input type="password" id="cont" name="cont" class="form-control" placeholder="password" required>

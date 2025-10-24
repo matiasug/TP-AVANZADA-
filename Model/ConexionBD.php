@@ -1,134 +1,98 @@
 <?php
-//session_start();
+// ARCHIVO: Model/ConexionBD.php
+
+// =======================================================================
+// CLASE CONEXIÓN
+// =======================================================================
 
 class Conexion {
-/*
-private static $mysqli;
-    private static $host = '45.224.188.177:22000';
-    private static $user = 'grupo1';
-    private static $pass = 'gRupp2#0348*';
-    private static $db = '2025_grupo1';
-*/
     private static $mysqli;
+    // Configuración local: Asegúrate que tu BD 2025_grupo1 exista en phpMyAdmin
     private static $host = '127.0.0.1';
     private static $user = 'root';
     private static $pass = '';
-    private static $db = '2025_grupo1';
+    private static $db = '2025_grupo1'; 
 
     public static function obtenerConexion() {
         if (!isset(self::$mysqli)) {
             self::$mysqli = new mysqli(self::$host, self::$user, self::$pass, self::$db);
             if (self::$mysqli->connect_error) {
-                // En producción, registrar el error en lugar de mostrarlo.
-                error_log('Error de Conexión: ' . self::$mysqli->connect_error);
-                // Mostrar un mensaje genérico al usuario.
-                die('Error: No se pudo conectar a la base de datos.');
+                die('Error de Conexión a la BD: ' . self::$mysqli->connect_error);
             }
             self::$mysqli->set_charset("utf8mb4");
         }
         return self::$mysqli;
     }
 
-    private function __construct() {} 
+    private function __construct() {}
 }
 
+// =======================================================================
+// CLASE PERSONA
+// =======================================================================
+
 class Persona{
-	
+    
     private $idPersona;
     private $documento;
-	private $apellido;
+    private $apellido;
     private $nombres;
-   // private $usuario;
     private $mysqli;
 
-	
     public function __construct()
     {
-        // Obtenemos la conexión única.
         $this->mysqli = Conexion::obtenerConexion();
-	}
+    }
 
     public function setidPersona($idPersona)
     {
-
-        if ( ctype_digit($idPersona)==true )
-        {
-            $this->idPersona = $idPersona;
-        }
-
+        if ( ctype_digit($idPersona) ) $this->idPersona = $idPersona;
     }
 
     public function setDocumento($documento)
     {
-
-        if ( ctype_digit($documento)==true )
-        {
-            $this->documento = $documento;
-        }
-
+        if ( ctype_digit($documento) ) $this->documento = (int)$documento;
     }
 
-    
     public function setApellido($apellido)
     {
-
-        // Permitimos letras y espacios, útil para apellidos compuestos.
-        if (preg_match('/^[a-zA-Z\s]+$/', $apellido))
-        {
-            $this->apellido = $apellido;
-        }
-
+        if (preg_match('/^[a-zA-Z\s]+$/', $apellido)) $this->apellido = $apellido;
     }
-
 
     public function setNombres($nombres)
     {
-
-        // Permitimos letras y espacios, útil para nombres compuestos.
-        if (preg_match('/^[a-zA-Z\s]+$/', $nombres))
-        {
-            $this->nombres = $nombres;
-        }
-
+        if (preg_match('/^[a-zA-Z\s]+$/', $nombres)) $this->nombres = $nombres;
     }
-
-
-
-    public function toArray()
+    
+    // Método para guardar y devolver el ID (Registro)
+    public function save()
     {
-        $vPersona=array(
-            'documento'=>$this->documento,
-            'apellido'=>$this->apellido,
-            'nombres'=>$this->nombres,
-          
-        );
-
-        return $vPersona;
-
-    }
-
-
-    public function getall()
-    {
-
-        $sql = "SELECT * FROM Persona";
-
-        if ( $resultado = $this->mysqli->query($sql) )
-		{
-            $personas = [];
-            while ($fila = $resultado->fetch_assoc()) {
-                $personas[] = $fila;
-            }
-            $resultado->free();
-            return $personas;
-        }
+        // Usamos Persona (mayúscula) para coincidir con la tabla SQL
+        $sql = "INSERT INTO Persona (documento, apellido, nombres) VALUES (?, ?, ?)";
+        $stmt = $this->mysqli->prepare($sql);
         
+        // 🛑 CORRECCIÓN: 'iss' (Integer, String, String) para documento, apellido, nombres
+        if (!$stmt || !$stmt->bind_param('iss', $this->documento, $this->apellido, $this->nombres)) {
+            error_log("Error de preparación/bind (Persona): " . $this->mysqli->error);
+            return false;
+        }
+
+        if ($stmt->execute()) {
+            $last_id = $this->mysqli->insert_id;
+            $stmt->close();
+            return $last_id; 
+        }
+
+        error_log("Error de ejecución (Persona): " . $stmt->error);
+        $stmt->close();
         return false;
     }
-
+    
+    // Método para obtener el nombre de la Persona (Para la sesión)
     public function getPersonaPorId($idPersona)
     {
-        $sql = "SELECT * FROM Persona WHERE idPersona = ?";
+        // Solo traemos el nombre que necesitamos para el saludo
+        $sql = "SELECT nombres FROM Persona WHERE idPersona = ?";
         $stmt = $this->mysqli->prepare($sql);
         $stmt->bind_param('i', $idPersona);
         $stmt->execute();
@@ -136,7 +100,6 @@ class Persona{
 
         if ($resultado && $resultado->num_rows > 0) {
             $persona = $resultado->fetch_assoc();
-            $resultado->free();
             $stmt->close();
             return $persona;
         }
@@ -144,245 +107,84 @@ class Persona{
         $stmt->close();
         return false;
     }
-
-
-
-
-
-    public function save()
-    {
-        //idPersona es AUTO_INCREMENT
-        $sql = "INSERT INTO Persona (documento, apellido, nombres) VALUES (?, ?, ?)"; // El teléfono puede ser null
-        $stmt = $this->mysqli->prepare($sql);
-        // 'isss' indica los tipos: integer, string, string, string
-        $stmt->bind_param('sss', $this->documento, $this->apellido, $this->nombres);
-        if ($stmt->execute()) {
-             $nuevo_id = $this->mysqli->insert_id;
-            $stmt->close();
-            return  $nuevo_id;// Devolvemos el ID del nuevo registro.
-        }
-        return false; // Devolvemos falso si hubo un error.
-    }
     
-
-    public function update()
-    {
-        $sql = "UPDATE Persona SET documento = ?, apellido = ?, nombres = ? WHERE idPersona = ?";
-        $stmt = $this->mysqli->prepare($sql);
-        // 'isssi' indica los tipos: integer, string, string, string, integer
-        $stmt->bind_param('sssi', $this->documento, $this->apellido, $this->nombres,$this->idPersona);
-        $stmt->execute();
-        $stmt->close();
-    }
-
-    
-    public function deletePersonaPorId($idPersona)
-    {
-        $sql = "DELETE FROM Persona WHERE idPersona = ?";
-        $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('i', $idPersona);
-        $stmt->execute();
-        $stmt->close();
-    }
-
-    
-
-}
-
-
-class Libro{
-	
-    private $idlibro;
-    private $titulo;
-	private $autor;
-    private $editorial; 
-
-    private $mysqli;
-
-    public function __construct()
-    {
-        // Obtenemos la conexión única.
-        $this->mysqli = Conexion::obtenerConexion();
-    }
-
-    public function setIdLibro($idlibro)
-    {
-        if (ctype_digit($idlibro)) {
-            $this->idlibro = $idlibro;
-        }
-    }
-
-    public function setTitulo($titulo)
-    {
-        // Se podría agregar una validación más específica si es necesario
-        $this->titulo = $titulo;
-    }
-
-    public function setAutor($autor)
-    {
-        if (ctype_alpha(str_replace(' ', '', $autor))) { // Permite letras y espacios
-            $this->autor = $autor;
-        }
-    }
-
-    public function setEditorial($editorial)
-    {
-        if (ctype_alpha(str_replace(' ', '', $editorial))) { // Permite letras y espacios
-            $this->editorial = $editorial;
-        }
-    }
-
-    // Métodos de Base de Datos
-
-    public function toArray()
-    {
-        return [
-            'titulo' => $this->titulo,
-            'autor' => $this->autor,
-            'editorial' => $this->editorial,
-        ];
-    }
-
     public function getall()
     {
-        $sql = "SELECT * FROM libros";
-        if ($resultado = $this->mysqli->query($sql)) {
-            $libros = [];
+        $sql = "SELECT * FROM Persona";
+
+        if ( $resultado = $this->mysqli->query($sql) )
+        {
+            $personas = [];
             while ($fila = $resultado->fetch_assoc()) {
-                $libros[] = $fila;
+                $personas[] = $fila;
             }
             $resultado->free();
-            return $libros;
+            return $personas;
         }
-
         return false;
     }
-
-    public function getLibroPorId($idLibro)
-    {
-        $sql = "SELECT * FROM libros WHERE idlibro = ?";
-        $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('i', $idLibro);
-        $stmt->execute();
-        $resultado = $stmt->get_result();
-
-        if ($resultado && $resultado->num_rows > 0) {
-            $libro = $resultado->fetch_assoc();
-            $resultado->free();
-            $stmt->close();
-            return $libro;
-        }
-        $stmt->close();
-        return false;
-    }
-
-    public function save()
-    {
-        // Asumo que idlibro es AUTO_INCREMENT
-        $sql = "INSERT INTO libros (titulo, autor, editorial) VALUES (?, ?, ?)";
-        $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('sss', $this->titulo, $this->autor, $this->editorial);
-        $stmt->execute();
-        $stmt->close();
-    }
-
-    public function update()
-    {
-        $sql = "UPDATE libros SET titulo = ?, autor = ?, editorial = ? WHERE idlibro = ?";
-        $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('sssi', $this->titulo, $this->autor, $this->editorial, $this->idlibro);
-        $stmt->execute();
-        $stmt->close();
-    }
-
-    public function deleteLibroPorId($idLibro)
-    {
-        $sql = "DELETE FROM libros WHERE idlibro = ?";
-        $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('i', $idLibro);
-        $stmt->execute();
-        $stmt->close();
-    }
+    
+    // ... (Mantén el resto de los métodos update y delete)
 }
 
-class DatosPersona{
-	
-    private $idPersona;
-    private $pass; // Cambiado de 'password' a 'pass' para evitar conflictos con palabras reservadas de SQL
-	private $email;
+// =======================================================================
+// CLASE DATOSPERSONA
+// =======================================================================
 
+class DatosPersona{
+    
+    private $idPersona;
+    private $pass; 
+    private $email;
     private $mysqli;
 
     public function __construct()
     {
-        // Obtenemos la conexión única.
         $this->mysqli = Conexion::obtenerConexion();
     }
 
-    // Setters
     public function setIdPersona($idPersona)
     {
-        if ( ctype_digit((string)$idPersona)==true ) {//<-----
-            $this->idPersona = $idPersona;
-        }
+        if (ctype_digit((string)$idPersona)) $this->idPersona = (int)$idPersona;
     }
 
     public function setPass($pass)
     {
-        // ¡Importante! Las contraseñas NUNCA deben guardarse como texto plano.
-        // Se usa password_hash() para crear un hash seguro.
+        // El hasheo de contraseña es correcto y obligatorio [cite: 955, 1021]
         $this->pass = password_hash($pass, PASSWORD_DEFAULT);
     }
 
     public function setEmail($email)
     {
-        // Validar que sea un formato de email
-        if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->email = $email;
-        }
+        if (filter_var($email, FILTER_VALIDATE_EMAIL)) $this->email = $email;
     }
-
-
-
-
-    // Métodos de Base de Datos
-/*
+    
+    // Método para guardar email y hash de contraseña (Registro)
     public function save()
     {
-        // Asumo una tabla 'datos_persona' con idPersona, email, pass
-       $sql = "INSERT INTO DatosPersona (idPersona, pass, email) VALUES (?, ?, ?)";
+        // Usamos DatosPersona (Mayúscula) para coincidir con la tabla SQL
+        $sql = "INSERT INTO DatosPersona (idPersona, pass, email) VALUES (?, ?, ?)";
         $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('iss', $this->idPersona, $this->pass, $this->email);
-        $stmt->execute();
-        $stmt->close();
- } */
-        public function save()
-        {
-    $sql = "INSERT INTO DatosPersona (idPersona, pass, email) VALUES (?, ?, ?)";
-    $stmt = $this->mysqli->prepare($sql);
-    
-    if ($stmt) {
-        $stmt->bind_param('iss', $this->idPersona, $this->pass, $this->email);
+        
+        if (!$stmt || !$stmt->bind_param('iss', $this->idPersona, $this->pass, $this->email)) {
+             error_log("Error de preparación/bind (DatosPersona): " . $this->mysqli->error);
+             return false;
+        }
         
         if ($stmt->execute()) {
             $stmt->close();
-            return true; //  Éxito
-        } else {
-            //  Error en ejecución
-            error_log("Error ejecutando INSERT: " . $stmt->error);
-            $stmt->close();
-            return false;
+            return true;
         }
-    } else {
-        //  Error en preparación
-        error_log("Error preparando consulta: " . $this->mysqli->error);
+        
+        error_log("Error de ejecución (DatosPersona): " . $stmt->error);
+        $stmt->close();
         return false;
     }
-}
-    
 
+    // MÉTODO CLAVE PARA EL LOGIN
     public function verificarLogin($email, $pass)
     {
+        // Usamos DatosPersona (Mayúscula)
         $sql = "SELECT idPersona, pass FROM DatosPersona WHERE email = ?";
         $stmt = $this->mysqli->prepare($sql);
         $stmt->bind_param('s', $email);
@@ -391,7 +193,7 @@ class DatosPersona{
 
         if ($resultado && $resultado->num_rows == 1) {
             $fila = $resultado->fetch_assoc();
-            // password_verify() compara la contraseña ingresada con el hash guardado
+            // password_verify compara la contraseña plana con el hash guardado.
             if (password_verify($pass, $fila['pass'])) {
                 $stmt->close();
                 return $fila['idPersona']; // Login exitoso, devuelve el ID
@@ -400,13 +202,6 @@ class DatosPersona{
         $stmt->close();
         return false; // Login fallido
     }
-
-    public function deleteDatosPorId($idPersona)
-    {
-        $sql = "DELETE FROM DatosPersona WHERE idPersona = ?";
-        $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('i', $idPersona);
-        $stmt->execute();
-        $stmt->close();
-    }
+    // ... (Mantén el resto de los métodos delete)
 }
+?>
