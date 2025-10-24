@@ -1,7 +1,14 @@
 <?php
-session_start();
+//session_start();
 
 class Conexion {
+/*
+private static $mysqli;
+    private static $host = '45.224.188.177:22000';
+    private static $user = 'grupo1';
+    private static $pass = 'gRupp2#0348*';
+    private static $db = '2025_grupo1';
+*/
     private static $mysqli;
     private static $host = '127.0.0.1';
     private static $user = 'root';
@@ -31,6 +38,7 @@ class Persona{
     private $documento;
 	private $apellido;
     private $nombres;
+   // private $usuario;
     private $mysqli;
 
 	
@@ -103,7 +111,7 @@ class Persona{
     public function getall()
     {
 
-        $sql = "SELECT * FROM personas";
+        $sql = "SELECT * FROM Persona";
 
         if ( $resultado = $this->mysqli->query($sql) )
 		{
@@ -120,7 +128,7 @@ class Persona{
 
     public function getPersonaPorId($idPersona)
     {
-        $sql = "SELECT * FROM personas WHERE idPersona = ?";
+        $sql = "SELECT * FROM Persona WHERE idPersona = ?";
         $stmt = $this->mysqli->prepare($sql);
         $stmt->bind_param('i', $idPersona);
         $stmt->execute();
@@ -144,13 +152,14 @@ class Persona{
     public function save()
     {
         //idPersona es AUTO_INCREMENT
-        $sql = "INSERT INTO personas (documento, apellido, nombres, telefono) VALUES (?, ?, ?, ?)"; // El teléfono puede ser null
+        $sql = "INSERT INTO Persona (documento, apellido, nombres) VALUES (?, ?, ?)"; // El teléfono puede ser null
         $stmt = $this->mysqli->prepare($sql);
         // 'isss' indica los tipos: integer, string, string, string
-        $stmt->bind_param('isss', $this->documento, $this->apellido, $this->nombres);
+        $stmt->bind_param('sss', $this->documento, $this->apellido, $this->nombres);
         if ($stmt->execute()) {
+             $nuevo_id = $this->mysqli->insert_id;
             $stmt->close();
-            return $this->mysqli->insert_id; // Devolvemos el ID del nuevo registro.
+            return  $nuevo_id;// Devolvemos el ID del nuevo registro.
         }
         return false; // Devolvemos falso si hubo un error.
     }
@@ -158,10 +167,10 @@ class Persona{
 
     public function update()
     {
-        $sql = "UPDATE personas SET documento = ?, apellido = ?, nombres = ?, telefono = ? WHERE idPersona = ?";
+        $sql = "UPDATE Persona SET documento = ?, apellido = ?, nombres = ? WHERE idPersona = ?";
         $stmt = $this->mysqli->prepare($sql);
         // 'isssi' indica los tipos: integer, string, string, string, integer
-        $stmt->bind_param('isssi', $this->documento, $this->apellido, $this->nombres,$this->idPersona);
+        $stmt->bind_param('sssi', $this->documento, $this->apellido, $this->nombres,$this->idPersona);
         $stmt->execute();
         $stmt->close();
     }
@@ -169,7 +178,7 @@ class Persona{
     
     public function deletePersonaPorId($idPersona)
     {
-        $sql = "DELETE FROM personas WHERE idPersona = ?";
+        $sql = "DELETE FROM Persona WHERE idPersona = ?";
         $stmt = $this->mysqli->prepare($sql);
         $stmt->bind_param('i', $idPersona);
         $stmt->execute();
@@ -313,7 +322,7 @@ class DatosPersona{
     // Setters
     public function setIdPersona($idPersona)
     {
-        if (ctype_digit($idPersona)) {
+        if ( ctype_digit((string)$idPersona)==true ) {//<-----
             $this->idPersona = $idPersona;
         }
     }
@@ -333,21 +342,48 @@ class DatosPersona{
         }
     }
 
-    // Métodos de Base de Datos
 
+
+
+    // Métodos de Base de Datos
+/*
     public function save()
     {
         // Asumo una tabla 'datos_persona' con idPersona, email, pass
-        $sql = "INSERT INTO datos_persona (idPersona, email, pass) VALUES (?, ?, ?)";
+       $sql = "INSERT INTO DatosPersona (idPersona, pass, email) VALUES (?, ?, ?)";
         $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('iss', $this->idPersona, $this->email, $this->pass);
+        $stmt->bind_param('iss', $this->idPersona, $this->pass, $this->email);
         $stmt->execute();
         $stmt->close();
+ } */
+        public function save()
+        {
+    $sql = "INSERT INTO DatosPersona (idPersona, pass, email) VALUES (?, ?, ?)";
+    $stmt = $this->mysqli->prepare($sql);
+    
+    if ($stmt) {
+        $stmt->bind_param('iss', $this->idPersona, $this->pass, $this->email);
+        
+        if ($stmt->execute()) {
+            $stmt->close();
+            return true; //  Éxito
+        } else {
+            //  Error en ejecución
+            error_log("Error ejecutando INSERT: " . $stmt->error);
+            $stmt->close();
+            return false;
+        }
+    } else {
+        //  Error en preparación
+        error_log("Error preparando consulta: " . $this->mysqli->error);
+        return false;
     }
+}
+    
 
     public function verificarLogin($email, $pass)
     {
-        $sql = "SELECT idPersona, pass FROM datos_persona WHERE email = ?";
+        $sql = "SELECT idPersona, pass FROM DatosPersona WHERE email = ?";
         $stmt = $this->mysqli->prepare($sql);
         $stmt->bind_param('s', $email);
         $stmt->execute();
@@ -367,7 +403,7 @@ class DatosPersona{
 
     public function deleteDatosPorId($idPersona)
     {
-        $sql = "DELETE FROM datos_persona WHERE idPersona = ?";
+        $sql = "DELETE FROM DatosPersona WHERE idPersona = ?";
         $stmt = $this->mysqli->prepare($sql);
         $stmt->bind_param('i', $idPersona);
         $stmt->execute();

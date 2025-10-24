@@ -1,7 +1,7 @@
 <?php 
 session_start();
-<<<<<<< HEAD
-=======
+
+require_once '../Model/ConexionBD.php';
 
 // Array de usuarios permitidos. En un futuro, esto vendría de una base de datos.
 $usuarios = [
@@ -13,7 +13,7 @@ $usuarios = [
 
 ];
 /* DESDE ACA HASTA LA LINEA 44 ES LO QUE NOS DEJO CANDE (CORREGIDO DEL TP 1 XD)
->>>>>>> 303b5275b9071d2e104e9c436ae3592193fa124a
+
 
 // 1. Incluimos el archivo que contiene nuestras clases para la base de datos.
 require_once '../Model/ConexionBD.php';
@@ -67,26 +67,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['token']) && hash_equa
     header("Location: index.php?error=1");
     exit;
 }
-?>
+
+
 */
 // verificamos que la petición sea POST y que el token CSRF sea válido.
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['token']) && hash_equals($_SESSION['token'], $_POST['token'])) {
 
-<<<<<<< HEAD
-=======
+
     // El token es válido, ahora procesamos el login.
     // invalidar el token después de usarlo para mayor seguridad.
     unset($_SESSION['token']);
 
     // verificamos los datos del usuario.
     // verificamos el CAPTCHA y los datos del usuario.
-    if (isset($_POST['nombre'], $_POST['cont'], $_POST['correo'], $_POST['rand_code']) && $_POST['rand_code'] == $_SESSION['rand_code']) {
+    if (isset($_POST['nombre'], $_POST['cont'], $_POST['rand_code']) && $_POST['rand_code'] == $_SESSION['rand_code']) {
         unset($_SESSION['rand_code']); // Invalidamos el CAPTCHA después de usarlo (si no pongo esto no me deja acceder a inico).
 
         $usuario_encontrado = null;
-        // Se busca el usuario en el array
+        // Se busca el usuario en el array BD
         foreach ($usuarios as $usuario) {
-            if ($usuario['nombre_usuario'] === $_POST['nombre'] && $usuario['cont'] === $_POST['cont'] && $usuario['correo'] === $_POST['correo']) {
+            if ($usuario['nombre_usuario'] === $_POST['nombre'] && $usuario['cont'] === $_POST['cont']) {
                 $usuario_encontrado = $usuario;
                 break;
             }
@@ -119,10 +119,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['token']) && hash_equa
     header("Location: index.php?error=1");
     exit;
 }
-?>
-
->>>>>>> 303b5275b9071d2e104e9c436ae3592193fa124a
+    
+/*
 
 hash_equals() es la herramienta fundamental y correcta en PHP 
 para comparar cualquier tipo de "string secreto" (tokens, claves
  de API, etc.) para evitar que puedan ser adivinados mediante ataques de temporización
+
+
+*/
+?>
+
+

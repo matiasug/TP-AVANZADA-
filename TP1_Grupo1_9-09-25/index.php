@@ -31,11 +31,7 @@
   Iniciar sesión
 </h3>
 
-<<<<<<< HEAD
-
-=======
   
->>>>>>> 303b5275b9071d2e104e9c436ae3592193fa124a
 <!-- esta parte es la ventana de error que sale al ingresar mal la contraseña, por ahora queda asi -->
 <?php if (isset($_GET['error']) && $_GET['error'] == 1): ?>
    <div class="alert alert-danger text-center fw-bold" id="errorMsg">
@@ -53,15 +49,9 @@
   </script>
 <?php endif; ?>
 
-<<<<<<< HEAD
-
-
 
         <form id="formulario1" action="ProcesarLogin.php" method="POST">
-=======
-<form id="formulario1" action="ProcesarLogin.php" method="POST">
->>>>>>> 303b5275b9071d2e104e9c436ae3592193fa124a
-          
+
           <input type="hidden" name="token" value="<?php echo $token; ?>">
           <div class="mb-2">
             <label for="nombre" class="form-label">Nombre</label>
@@ -83,11 +73,7 @@
               <label for="rand_code" class="form-label">Código de seguridad:</label>
               <div class="d-flex align-items-center">
                   <!-- ruta de la imagen del CAPTCHA -->
-<<<<<<< HEAD
                   <img src="Includes/rdnimg.php" alt="CAPTCHA" class="me-2 rounded" style="border: 1px solid #ccc;">
-=======
-                   <img src="Includes/rdnimg.php" alt="CAPTCHA" class="me-2 rounded" style="border: 1px solid #ccc;">
->>>>>>> 303b5275b9071d2e104e9c436ae3592193fa124a
                   <input type="text" class="form-control" name="rand_code" id="rand_code" placeholder="Ingrese el código" required>
                   </div>
           </div>
@@ -102,8 +88,4 @@
   </main>
   
 <?php require_once('./Includes/footer.php') ?> 
-<<<<<<< HEAD
-=======
 
-
->>>>>>> 303b5275b9071d2e104e9c436ae3592193fa124a
