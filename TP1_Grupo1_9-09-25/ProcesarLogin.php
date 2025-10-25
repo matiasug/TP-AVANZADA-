@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['token']) && isset($_SE
             // Redirección basada en el Rol
             // CORRECCIÓN: Usar la variable $datos_persona['rol'] que se acaba de obtener de la BD.
             if (isset($datos_persona['rol']) && $datos_persona['rol'] == 'admin') {
-                header ("Location: Controller/ListadoPersonas.php");
+                header ("Location: abmPersonas.php");
             } else {
                 // Redirigir al panel de usuario normal (asumiendo que está en la raíz)
                 header("Location: inicio.php"); 

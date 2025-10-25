@@ -24,7 +24,16 @@ $correo_usuario = $_SESSION['DatosPersona']['correo'];
                 <p class="card-text">Has iniciado sesión correctamente.</p>
                 <p>Nombre de usuario: <strong><?php echo htmlspecialchars($nombre_usuario); ?></strong></p>
                 <p>Correo electrónico: <strong><?php echo htmlspecialchars($correo_usuario); ?></strong></p>
-                <a href="logout.php" class="btn btn-danger w-100 mt-3">Cerrar Sesión</a>
+                
+                <div class="d-grid gap-2 mt-4">
+                    <a href="abmProductos.php" class="btn btn-primary">Gestionar Libros</a>
+
+                    <?php if (isset($_SESSION['DatosPersona']['rol']) && $_SESSION['DatosPersona']['rol'] == 'admin'): ?>
+                        <a href="abmPersonas.php" class="btn btn-info">Administrar Usuarios</a>
+                    <?php endif; ?>
+
+                    <a href="logout.php" class="btn btn-danger mt-3">Cerrar Sesión</a>
+                </div>
             </div>
         </div>
     </main>

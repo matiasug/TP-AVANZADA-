@@ -9,12 +9,19 @@ class Conexion {
     private static $mysqli;
     private static $host = '127.0.0.1';
     private static $user = 'root';
-    private static $pass = ''; // Por defecto, vacío en XAMPP/LAMPP
+    private static $pass = ''; 
     private static $db = '2025_grupo1'; 
 
     public static function obtenerConexion() {
         if (!isset(self::$mysqli)) {
             self::$mysqli = new mysqli(self::$host, self::$user, self::$pass, self::$db);
+
+            // --- VALIDACIÓN DE CONEXIÓN ---
+            // Si la conexión falla, detenemos la ejecución y mostramos un error amigable.
+            if (self::$mysqli->connect_error) {
+                // En un entorno de producción, podrías mostrar una página de error más elaborada.
+                die('Error de Conexión (' . self::$mysqli->connect_errno . ') ' . self::$mysqli->connect_error);
+            }
            
             self::$mysqli->set_charset("utf8mb4");
         }
@@ -90,6 +97,36 @@ class Persona{
         $stmt->close();
         return false;
     }
+
+    public function update()
+    {
+        $sql = "UPDATE Persona SET documento = ?, apellido = ?, nombres = ? WHERE idPersona = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        if (!$stmt) {
+            error_log("Error de preparación SQL (Persona->update): " . $this->mysqli->error);
+            return false;
+        }
+        $stmt->bind_param('sssi', $this->documento, $this->apellido, $this->nombres, $this->idPersona);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
+
+    public function delete($idPersona)
+    {
+        // Primero, eliminar los datos de login asociados
+        $oDatosPersona = new DatosPersona();
+        $oDatosPersona->deletePorIdPersona($idPersona);
+
+        // Luego, eliminar la persona
+        $sql = "DELETE FROM Persona WHERE idPersona = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        if (!$stmt) return false;
+        $stmt->bind_param('i', $idPersona);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
     
     public function getPersonaPorId($idPersona)
     {
@@ -115,8 +152,11 @@ class Persona{
     
     public function getall()
     {
-        $sql = "SELECT * FROM Persona";
-
+        // Se une Persona con DatosPersona para obtener todos los datos relevantes
+        $sql = "SELECT p.idPersona, p.documento, p.apellido, p.nombres, dp.email, p.rol 
+                FROM Persona p
+                LEFT JOIN DatosPersona dp ON p.idPersona = dp.idPersona
+                ORDER BY p.apellido, p.nombres";
         if ( $resultado = $this->mysqli->query($sql) )
         {
             $personas = [];
@@ -124,9 +164,9 @@ class Persona{
                 $personas[] = $fila;
             }
             $resultado->free();
-            return $personas;
+            return $personas; // Devolver el array de personas si la consulta fue exitosa
         }
-        return false;
+        return false; // Devolver false solo si la consulta falla
     }
     
     public function toArray()
@@ -193,31 +233,102 @@ class Libro{
         return false;
     }
 
-    public function save()
+    public function getById($idLibro)
     {
-        $sql = "INSERT INTO Libro (Titulo, Autor, Editorial) VALUES (?, ?, ?)";
+        $sql = "SELECT idlibro, Titulo, Autor, Editorial FROM Libro WHERE idlibro = ?";
         $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('sss', $this->titulo, $this->autor, $this->editorial);
+        if (!$stmt) {
+            error_log("Error de preparación SQL (getById): " . $this->mysqli->error);
+            return false;
+        }
+        $stmt->bind_param('i', $idLibro);
         $stmt->execute();
+        $resultado = $stmt->get_result();
+
+        if ($resultado && $resultado->num_rows > 0) {
+            $libro = $resultado->fetch_assoc();
+            $stmt->close();
+            return $libro;
+        }
         $stmt->close();
+        return false;
     }
 
-    public function update()
+    public function buscar($busqueda)
     {
-        $sql = "UPDATE Libro SET Titulo = ?, Autor = ?, Editorial = ? WHERE idlibro = ?";
+        $busqueda = '%' . $busqueda . '%'; // Para búsqueda parcial
+        $sql = "SELECT idlibro, Titulo, Autor, Editorial FROM Libro WHERE Titulo LIKE ? OR Autor LIKE ? OR Editorial LIKE ? ORDER BY Titulo ASC";
         $stmt = $this->mysqli->prepare($sql);
-        $stmt->bind_param('sssi', $this->titulo, $this->autor, $this->editorial, $this->idlibro);
+        if (!$stmt) {
+            error_log("Error de preparación SQL (buscar): " . $this->mysqli->error);
+            return false;
+        }
+        $stmt->bind_param('sss', $busqueda, $busqueda, $busqueda);
         $stmt->execute();
+        $resultado = $stmt->get_result();
+        $libros = $resultado->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
+        return $libros;
+    }
+
+    public function save($idPersona, $filePath)
+    {
+        $sql = "INSERT INTO Libro (Titulo, Autor, Editorial, Persona_id, archivo) VALUES (?, ?, ?, ?, ?)";
+        $stmt = $this->mysqli->prepare($sql);
+        if (!$stmt) {
+            error_log("Error de preparación SQL (Libro->save): " . $this->mysqli->error);
+            return false;
+        }
+        // Ajustamos el bind_param a 'sssis' (string, string, string, integer, string)
+        if (!$stmt->bind_param('sssis', $this->titulo, $this->autor, $this->editorial, $idPersona, $filePath)) {
+            error_log("Error en bind_param (Libro->save): " . $stmt->error);
+            return false;
+        }
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
+
+    public function update($filePath = null)
+    {
+        // Si se sube una nueva imagen, la actualizamos. Si no, mantenemos la existente.
+        if ($filePath !== null) {
+            $sql = "UPDATE Libro SET Titulo = ?, Autor = ?, Editorial = ?, archivo = ? WHERE idlibro = ?";
+            $stmt = $this->mysqli->prepare($sql);
+            if (!$stmt) {
+                error_log("Error de preparación SQL (Libro->update con imagen): " . $this->mysqli->error);
+                return false;
+            }
+            $stmt->bind_param('ssssi', $this->titulo, $this->autor, $this->editorial, $filePath, $this->idlibro);
+        } else {
+            // No se subió una nueva imagen, así que no actualizamos esa columna
+            $sql = "UPDATE Libro SET Titulo = ?, Autor = ?, Editorial = ? WHERE idlibro = ?";
+            $stmt = $this->mysqli->prepare($sql);
+            if (!$stmt) {
+                error_log("Error de preparación SQL (Libro->update sin imagen): " . $this->mysqli->error);
+                return false;
+            }
+            $stmt->bind_param('sssi', $this->titulo, $this->autor, $this->editorial, $this->idlibro);
+        }
+
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
     }
     
-    public function deleteLibroPorId($idLibro)
+    // Renombrado para consistencia y mejor práctica
+    public function delete($idLibro)
     {
         $sql = "DELETE FROM Libro WHERE idlibro = ?";
         $stmt = $this->mysqli->prepare($sql);
+        if (!$stmt) {
+            error_log("Error de preparación SQL (Libro->delete): " . $this->mysqli->error);
+            return false;
+        }
         $stmt->bind_param('i', $idLibro);
-        $stmt->execute();
+        $success = $stmt->execute();
         $stmt->close();
+        return $success;
     }
 }
 
@@ -276,6 +387,18 @@ class DatosPersona{
         return false;
     }
 
+    public function deletePorIdPersona($idPersona)
+    {
+        $sql = "DELETE FROM DatosPersona WHERE idPersona = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param('i', $idPersona);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
     // Método para verificar Login (Correcto)
     public function verificarLogin($email, $pass)
     {

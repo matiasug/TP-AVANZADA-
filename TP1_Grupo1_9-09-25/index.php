@@ -52,10 +52,6 @@
 
           <input type="hidden" name="token" value="<?php echo $token; ?>">
           <div class="mb-2">
-            <label for="nombre" class="form-label">Nombre</label>
-            <input type="text" class="form-control" id="nombre" name="nombre" placeholder="name" required>
-          </div>
-          <div class="mb-2">
             <label for="correo" class="form-label">Correo</label>
             <input type="email" class="form-control" id="correo" name="correo" placeholder="example@email.com" required>
           </div>
@@ -75,7 +71,7 @@
 
           <button type="submit" class="btn btn-marron w-100 fw-bold mb-2">Iniciar sesión</button>
         </form>
-        <a href="FormPersonas.php" class="btn btn-marron w-100 fw-bold mb-2 mt-2">Crear una cuenta</a>
+        <a href="abmPersonas.php" class="btn btn-marron w-100 fw-bold mb-2 mt-2">Crear una cuenta</a>
 
       </div>
     </div>
