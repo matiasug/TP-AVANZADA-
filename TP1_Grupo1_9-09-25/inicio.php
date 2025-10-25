@@ -9,7 +9,7 @@ if (!isset($_SESSION['usuario'])) {
 
 // 2. Si ha iniciado sesión, recuperamos sus datos para mostrarlos.
 $nombre_usuario = $_SESSION['usuario'];
-$correo_usuario = $_SESSION['datos_usuario']['correo'];
+$correo_usuario = $_SESSION['DatosPersona']['correo'];
 ?>
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light">

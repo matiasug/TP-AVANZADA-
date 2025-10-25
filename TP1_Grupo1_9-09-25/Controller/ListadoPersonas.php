@@ -2,12 +2,12 @@
 
 session_start();
 
-require_once 'Model/ConexionBD.php';
+require_once '../Model/ConexionBD.php';
 
 // Verifica si el usuario NO está logueado O si su rol NO es 'admin'
 if (!isset($_SESSION['DatosPersona']) || $_SESSION['DatosPersona']['rol'] != 'admin') {
     // Si no es administrador, lo redirigimos fuera
-    header("Location: inicio.php"); 
+    header("Location: ../inicio.php"); 
     exit;
 }
 
@@ -18,13 +18,13 @@ $personas = $oPersona->getall();
 
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light">
-   <?php require_once("./Includes/header.php")?>
-      <link href="bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
-      <link href="css/estilos.css" rel="stylesheet">
+   <?php require_once("../Includes/header.php")?>
+      <link href="../bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
+      <link href="../css/estilos.css" rel="stylesheet">
     
 
 <body class="d-flex flex-column min-vh-100"
-      style="background: url('imgs/fondo1.jpg') no-repeat center center fixed; background-size: cover;">
+      style="background: url('../imgs/fondo1.jpg') no-repeat center center fixed; background-size: cover;">
 
   
   <main class="flex-fill d-flex justify-content-center align-items-center p-3">
@@ -36,7 +36,7 @@ $personas = $oPersona->getall();
           Gestión de Usuarios (ABM)
         </h3>
 
-        <a href="FormPersona.php" class="btn btn-primary fw-bold mb-3">Agregar Nueva Persona</a>
+        <a href="../FormPersonas.php" class="btn btn-primary fw-bold mb-3">Agregar Nueva Persona</a>
         
         <div class="table-responsive">
             <table class="table table-striped table-hover table-bordered">
@@ -81,14 +81,14 @@ $personas = $oPersona->getall();
                     ?>
                 </tbody>
             </table>
-        </div> <a href="inicio.php" class="btn btn-outline-secondary fw-bold mt-3">Volver al Dashboard</a>
+        </div> <a href="../inicio.php" class="btn btn-outline-secondary fw-bold mt-3">Volver al Dashboard</a>
 
       </div>
     </div>
 
   </main>
   
-    <?php require_once('./Includes/footer.php') ?>
+    <?php require_once('../Includes/footer.php') ?>
 
     <script>
     function confirmarBaja(id) {

@@ -3,7 +3,10 @@ session_start();
 ?>
 <!DOCTYPE html>
 <html lang="es">
-   <?php require_once("./Includes/header.php")?>
+   <?php require_once("./Includes/header.php")
+    ?>
+        
+
 <br>
 <body class="d-flex flex-column min-vh-100"
       style="background: url('imgs/fondo1.jpg') no-repeat center center fixed; background-size: cover;">
@@ -11,7 +14,7 @@ session_start();
     <h4 class="text-center">Sistema Recursos Humanos</h4>
     <div class="container d-flex justify-content-center">
 
-      <form method="POST" action="ProcesarPersona.php" class="card p-4 mt-3 shadow" style="max-width:600px;width:100%">
+      <form method="POST" action="./Controller/ProcesarPersona.php" class="card p-4 mt-3 shadow" style="max-width:600px;width:100%">
 
         <div class="row">
           <div class="col-md-6 mb-3">

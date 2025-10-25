@@ -1,5 +1,5 @@
 <?php
-// ARCHIVO: Model/ConexionBD.php
+
 
 // =======================================================================
 // CLASE CONEXIÓN
@@ -7,18 +7,15 @@
 
 class Conexion {
     private static $mysqli;
-    // Configuración local: Asegúrate que tu BD 2025_grupo1 exista en phpMyAdmin
     private static $host = '127.0.0.1';
     private static $user = 'root';
-    private static $pass = '';
+    private static $pass = ''; // Por defecto, vacío en XAMPP/LAMPP
     private static $db = '2025_grupo1'; 
 
     public static function obtenerConexion() {
         if (!isset(self::$mysqli)) {
             self::$mysqli = new mysqli(self::$host, self::$user, self::$pass, self::$db);
-            if (self::$mysqli->connect_error) {
-                die('Error de Conexión a la BD: ' . self::$mysqli->connect_error);
-            }
+           
             self::$mysqli->set_charset("utf8mb4");
         }
         return self::$mysqli;
@@ -37,43 +34,48 @@ class Persona{
     private $documento;
     private $apellido;
     private $nombres;
+    private $rol; 
     private $mysqli;
 
     public function __construct()
     {
         $this->mysqli = Conexion::obtenerConexion();
     }
-
+    
     public function setidPersona($idPersona)
     {
-        if ( ctype_digit($idPersona) ) $this->idPersona = $idPersona;
+        // Se asume que $idPersona viene sanitizado
+        if ( ctype_digit((string)$idPersona) ) $this->idPersona = (int)$idPersona;
     }
 
     public function setDocumento($documento)
     {
-        if ( ctype_digit($documento) ) $this->documento = (int)$documento;
+        // Se asume que el documento es una cadena de dígitos
+        if ( ctype_digit((string)$documento) ) $this->documento = $documento; // Lo dejamos como string/entero flexible
     }
 
     public function setApellido($apellido)
     {
-        if (preg_match('/^[a-zA-Z\s]+$/', $apellido)) $this->apellido = $apellido;
+        $this->apellido = $apellido;
+        
+
     }
 
     public function setNombres($nombres)
     {
-        if (preg_match('/^[a-zA-Z\s]+$/', $nombres)) $this->nombres = $nombres;
+        $this->nombres = $nombres;
+        
+
     }
     
     // Método para guardar y devolver el ID (Registro)
     public function save()
     {
-        // Usamos Persona (mayúscula) para coincidir con la tabla SQL
         $sql = "INSERT INTO Persona (documento, apellido, nombres) VALUES (?, ?, ?)";
         $stmt = $this->mysqli->prepare($sql);
         
-        // CORRECCIÓN: 'iss' (Integer, String, String) para documento, apellido, nombres
-        //ESTO NO ME FUNCIONABA LO TUVE QUE CAMBIAR A ISS PORQ SSS NO DEJABA HAVER NASA, NO SE PQ
-        if (!$stmt || !$stmt->bind_param('iss', $this->documento, $this->apellido, $this->nombres)) {
+        // El 'sss' es el binding más flexible, adecuado para documento (si es VARCHAR), apellido y nombres.
+        if (!$stmt || !$stmt->bind_param('sss', $this->documento, $this->apellido, $this->nombres)) {
             error_log("Error de preparación/bind (Persona): " . $this->mysqli->error);
             return false;
         }
@@ -81,7 +83,7 @@ class Persona{
         if ($stmt->execute()) {
             $last_id = $this->mysqli->insert_id;
             $stmt->close();
-            return $last_id; 
+            return $last_id; // Devuelve el ID generado
         }
 
         error_log("Error de ejecución (Persona): " . $stmt->error);
@@ -89,14 +91,11 @@ class Persona{
         return false;
     }
     
-    // Método para obtener el nombre de la Persona (Para la sesión)
     public function getPersonaPorId($idPersona)
     {
-        // Solo traemos el nombre que necesitamos para el saludo
         $sql = "SELECT nombres, rol FROM Persona WHERE idPersona = ?";
         $stmt = $this->mysqli->prepare($sql);
         if (!$stmt) {
-             // Si falla el prepare (ej. la columna 'rol' no existe)
              error_log("Error de preparación SQL (getPersonaPorId): " . $this->mysqli->error);
              return false;
         }
@@ -104,10 +103,10 @@ class Persona{
         $stmt->execute();
         $resultado = $stmt->get_result();
 
-if ($resultado && $resultado->num_rows > 0) {
+        if ($resultado && $resultado->num_rows > 0) {
             $persona = $resultado->fetch_assoc();
             $stmt->close();
-            return $persona; // Devuelve ['nombres' => '...', 'rol' => 'admin']
+            return $persona;
         }
         
         $stmt->close();
@@ -139,11 +138,10 @@ if ($resultado && $resultado->num_rows > 0) {
             'nombres'   => $this->nombres ?? null
         ];
     }
-
-    // ... (Mantén el resto de los métodos update y delete)
 }
+
 // =======================================================================
-// CLASE LIBRO
+// CLASE LIBRO (Correcta)
 // =======================================================================
 class Libro{
     
@@ -157,7 +155,8 @@ class Libro{
     {
         $this->mysqli = Conexion::obtenerConexion();
     }
-
+    
+    // ... (Setters y demás métodos se mantienen sin cambios mayores)
     public function setIdLibro($idlibro)
     {
         if (ctype_digit($idlibro)) {
@@ -168,26 +167,21 @@ class Libro{
     public function setTitulo($titulo)
     {
         $this->titulo = trim($titulo);
-
     }
 
     public function setAutor($autor)
     {
-        if (ctype_alpha(str_replace(' ', '', $autor))) {
-            $this->autor = $autor;
-        }
+        $this->autor = trim($autor);
     }
 
     public function setEditorial($editorial)
     {
-        if (ctype_alpha(str_replace(' ', '', $editorial))) {
-            $this->editorial = $editorial;
-        }
+        $this->editorial = trim($editorial);
     }
-
+    
     public function getall()
     {
-        $sql = "SELECT * FROM Libro"; // Usamos 'Libro' (Mayúscula)
+        $sql = "SELECT * FROM Libro"; 
         if ($resultado = $this->mysqli->query($sql)) {
             $libros = [];
             while ($fila = $resultado->fetch_assoc()) {
@@ -242,7 +236,7 @@ class DatosPersona{
     {
         $this->mysqli = Conexion::obtenerConexion();
     }
-
+    
     public function setIdPersona($idPersona)
     {
         if (ctype_digit((string)$idPersona)) $this->idPersona = (int)$idPersona;
@@ -250,7 +244,7 @@ class DatosPersona{
 
     public function setPass($pass)
     {
-        // El hasheo de contraseña es correcto y obligatorio [cite: 955, 1021]
+        // Contraseña hasheada
         $this->pass = password_hash($pass, PASSWORD_DEFAULT);
     }
 
@@ -262,10 +256,11 @@ class DatosPersona{
     // Método para guardar email y hash de contraseña (Registro)
     public function save()
     {
-        // Usamos DatosPersona (Mayúscula) para coincidir con la tabla SQL
+        // Se asume que idPersona, pass y email son las columnas correctas.
         $sql = "INSERT INTO DatosPersona (idPersona, pass, email) VALUES (?, ?, ?)";
         $stmt = $this->mysqli->prepare($sql);
         
+        // Se utiliza 'iss' para (Integer, String, String)
         if (!$stmt || !$stmt->bind_param('iss', $this->idPersona, $this->pass, $this->email)) {
              error_log("Error de preparación/bind (DatosPersona): " . $this->mysqli->error);
              return false;
@@ -281,10 +276,9 @@ class DatosPersona{
         return false;
     }
 
-    // MÉTODO CLAVE PARA EL LOGIN
+    // Método para verificar Login (Correcto)
     public function verificarLogin($email, $pass)
     {
-        // Usamos DatosPersona (Mayúscula)
         $sql = "SELECT idPersona, pass FROM DatosPersona WHERE email = ?";
         $stmt = $this->mysqli->prepare($sql);
         $stmt->bind_param('s', $email);
@@ -293,85 +287,13 @@ class DatosPersona{
 
         if ($resultado && $resultado->num_rows == 1) {
             $fila = $resultado->fetch_assoc();
-            // password_verify compara la contraseña plana con el hash guardado.
             if (password_verify($pass, $fila['pass'])) {
                 $stmt->close();
-                return $fila['idPersona']; // Login exitoso, devuelve el ID
+                return $fila['idPersona']; 
             }
         }
         $stmt->close();
-        return false; // Login fallido
+        return false; 
     }
-    // ... (Mantén el resto de los métodos delete)
 }
-
-// =======================================================================
-// CLASE LIBRO
-// =======================================================================
-
-class libro{
-    
-    private $idPersona;
-    private $idlibro;
-    private $titulo;
-    private $editorial;
-    private $autor;
-    private $mysqli;
-
-    public function __construct()
-    {
-        $this->mysqli = Conexion::obtenerConexion();
-    }
-
-    public function setIdPersona($idPersona)
-    {
-        if (ctype_digit((string)$idPersona)) $this->idPersona = (int)$idPersona;
-    }
-
-    public function setidLibro($idlibro)
-    {
-        if (ctype_digit((string)$idlibro)) $this->idlibro = (int)$idlibro;
-    }
-
-    public function setTitulo($titulo)
-    {
-        $this->titulo = trim($titulo);
-    }
-
-     public function setTitulo($editorial)
-    {
-        $this->editorial = trim($editorial);
-    }
-
-     public function setAutor($autor)
-    {
-        $this->autor = trim($autor);
-    }
-    
-    // Método para guardar libros (Registro) NO SE SI GUARDARIA CON EL IDPERSONA... puede ser igual XD
-    public function save()
-    {
-        // Usamos Libro (Mayúscula) para coincidir con la tabla SQL
-        $sql = "INSERT INTO Libro (idPersona, titulo, editorial, autor) VALUES (?, ?, ?, ?)";
-        $stmt = $this->mysqli->prepare($sql);
-        
-        if (!$stmt || !$stmt->bind_param('isss', $this->idPersona, $this->titulo, $this->editorial, $this->autor)) {
-            error_log("Error de preparación/bind (Libro): " . $this->mysqli->error);
-            return false;
-    }
-        
-        if ($stmt->execute()) {
-            $this->idlibro = $this->mysqli->insert_id; 
-            $stmt->close();
-            return true;
-    }
-        
-        error_log("Error de ejecución (Libro): " . $stmt->error);
-        $stmt->close();
-        return false;
-    }
-
-}
-
-
 ?>
