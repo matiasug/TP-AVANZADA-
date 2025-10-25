@@ -55,6 +55,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $unique_name = uniqid('libro_', true) . '.' . $fileType;
                 $target_file = $target_dir . $unique_name; 
 
+                // --- VALIDACIÓN DE TAMAÑO (ej: 5MB) ---
+                $max_size = 5 * 1024 * 1024; // 5 MB en bytes
+                if ($_FILES['archivo_libro']['size'] > $max_size) {
+                    throw new Exception('El archivo es demasiado grande. El tamaño máximo permitido es de 5MB.');
+                }
+
                 // Validar tipo de archivo (opcional pero recomendado)
                 $allowed_types = ['pdf', 'txt'];
                 if (!in_array($fileType, $allowed_types)) {
