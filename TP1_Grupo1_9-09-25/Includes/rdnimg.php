@@ -1,13 +1,8 @@
 <?php
-// ARCHIVO: Includes/rdnimg.php (CORREGIDO)
+// ARCHIVO: Includes/rdnimg.php (Generador de CAPTCHA)
 
 session_start();
 
-// =========================================================
-// 🛑 CORRECCIÓN: SOLO GENERAR EL CÓDIGO SI AÚN NO EXISTE
-// =========================================================
-
-// Usaremos 'rand_code' como lo tienes en el resto de tu lógica.
 if (!isset($_SESSION['rand_code'])) { 
     $str = "";
     $a = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -22,9 +17,6 @@ if (!isset($_SESSION['rand_code'])) {
     $str = $_SESSION['rand_code'];
 }
 
-// =========================================================
-// CREACIÓN DE LA IMAGEN (Esta parte es correcta)
-// =========================================================
 
 header ('Content-Type: image/png');
 $im = imagecreatetruecolor(120, 30);

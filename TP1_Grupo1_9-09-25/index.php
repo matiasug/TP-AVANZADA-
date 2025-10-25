@@ -23,8 +23,7 @@
   
   <main class="flex-fill d-flex justify-content-center align-items-center">
 
-    <!-- Login centrado -->
-<div class="card shadow-lg rounded-4 p-4" style="background: #f6fff9; width: 100%; max-width: 350px; border: 2px solid #856133;">
+    <div class="card shadow-lg rounded-4 p-4" style="background: #f6fff9; width: 100%; max-width: 350px; border: 2px solid #856133;">
       <div class="card-body">
 
 <h3 class="fw-bold text-center" style="color: #856133; -webkit-text-stroke: 1.5px #6e5215ff; font-size: 2rem;">
@@ -32,7 +31,6 @@
 </h3>
 
   
-<!-- esta parte es la ventana de error que sale al ingresar mal la contraseña, por ahora queda asi -->
 <?php if (isset($_GET['error']) && $_GET['error'] == 1): ?>
    <div class="alert alert-danger text-center fw-bold" id="errorMsg">
   Acceso inválido. Por favor, inténtelo otra vez.
@@ -67,12 +65,10 @@
             <input type="password" id="cont" name="cont" class="form-control" placeholder="password" required>
           </div>
 
-          <!-- CAPTCHA --> 
           <div class="mb-3">
               <label for="rand_code" class="form-label">Código de seguridad:</label>
               <div class="d-flex align-items-center">
-                  <!-- ruta de la imagen del CAPTCHA -->
-                  <img src="Includes/rdnimg.php" alt="CAPTCHA" class="me-2 rounded" style="border: 1px solid #ccc;">
+                  <img src="Includes/rdnimg.php?v=<?php echo time(); ?>" alt="CAPTCHA" class="me-2 rounded" style="border: 1px solid #ccc;">
                   <input type="text" class="form-control" name="rand_code" id="rand_code" placeholder="Ingrese el código" required>
                   </div>
           </div>
@@ -86,5 +82,4 @@
 
   </main>
   
-<?php require_once('./Includes/footer.php') ?> 
-
+<?php require_once('./Includes/footer.php') ?>

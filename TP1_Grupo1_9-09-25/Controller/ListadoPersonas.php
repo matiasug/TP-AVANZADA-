@@ -5,7 +5,7 @@ session_start();
 require_once 'Model/ConexionBD.php';
 
 // Verifica si el usuario NO está logueado O si su rol NO es 'admin'
-if (!isset($_SESSION['datos_usuario']) || $_SESSION['datos_usuario']['rol'] != 'admin') {
+if (!isset($_SESSION['DatosPersona']) || $_SESSION['DatosPersona']['rol'] != 'admin') {
     // Si no es administrador, lo redirigimos fuera
     header("Location: inicio.php"); 
     exit;
@@ -36,7 +36,7 @@ $personas = $oPersona->getall();
           Gestión de Usuarios (ABM)
         </h3>
 
-        <a href="formperosnas.php" class="btn btn-primary fw-bold mb-3">Agregar Nueva Persona</a>
+        <a href="FormPersona.php" class="btn btn-primary fw-bold mb-3">Agregar Nueva Persona</a>
         
         <div class="table-responsive">
             <table class="table table-striped table-hover table-bordered">
@@ -55,7 +55,7 @@ $personas = $oPersona->getall();
                     if ($personas) {
                         foreach ($personas as $persona) {
                             // Usamos el color de fila para distinguir al administrador
-                            $clase_rol = ($persona['rol'] === 'admin') ? 'table-info fw-bold' : '';
+                            $clase_rol = ($persona['rol'] =='admin') ? 'table-info fw-bold' : '';
                             echo "<tr class='$clase_rol'>";
                             echo "<td>" . htmlspecialchars($persona['idPersona']) . "</td>";
                             echo "<td>" . htmlspecialchars($persona['documento']) . "</td>";
