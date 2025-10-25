@@ -304,4 +304,74 @@ class DatosPersona{
     }
     // ... (Mantén el resto de los métodos delete)
 }
+
+// =======================================================================
+// CLASE LIBRO
+// =======================================================================
+
+class libro{
+    
+    private $idPersona;
+    private $idlibro;
+    private $titulo;
+    private $editorial;
+    private $autor;
+    private $mysqli;
+
+    public function __construct()
+    {
+        $this->mysqli = Conexion::obtenerConexion();
+    }
+
+    public function setIdPersona($idPersona)
+    {
+        if (ctype_digit((string)$idPersona)) $this->idPersona = (int)$idPersona;
+    }
+
+    public function setidLibro($idlibro)
+    {
+        if (ctype_digit((string)$idlibro)) $this->idlibro = (int)$idlibro;
+    }
+
+    public function setTitulo($titulo)
+    {
+        $this->titulo = trim($titulo);
+    }
+
+     public function setTitulo($editorial)
+    {
+        $this->editorial = trim($editorial);
+    }
+
+     public function setAutor($autor)
+    {
+        $this->autor = trim($autor);
+    }
+    
+    // Método para guardar libros (Registro) NO SE SI GUARDARIA CON EL IDPERSONA... puede ser igual XD
+    public function save()
+    {
+        // Usamos Libro (Mayúscula) para coincidir con la tabla SQL
+        $sql = "INSERT INTO Libro (idPersona, titulo, editorial, autor) VALUES (?, ?, ?, ?)";
+        $stmt = $this->mysqli->prepare($sql);
+        
+        if (!$stmt || !$stmt->bind_param('isss', $this->idPersona, $this->titulo, $this->editorial, $this->autor)) {
+            error_log("Error de preparación/bind (Libro): " . $this->mysqli->error);
+            return false;
+    }
+        
+        if ($stmt->execute()) {
+            $this->idlibro = $this->mysqli->insert_id; 
+            $stmt->close();
+            return true;
+    }
+        
+        error_log("Error de ejecución (Libro): " . $stmt->error);
+        $stmt->close();
+        return false;
+    }
+
+}
+
+
 ?>
