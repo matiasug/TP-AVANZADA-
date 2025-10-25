@@ -71,7 +71,8 @@ class Persona{
         $sql = "INSERT INTO Persona (documento, apellido, nombres) VALUES (?, ?, ?)";
         $stmt = $this->mysqli->prepare($sql);
         
-        // 🛑 CORRECCIÓN: 'iss' (Integer, String, String) para documento, apellido, nombres
+        // CORRECCIÓN: 'iss' (Integer, String, String) para documento, apellido, nombres
+        //ESTO NO ME FUNCIONABA LO TUVE QUE CAMBIAR A ISS PORQ SSS NO DEJABA HAVER NASA, NO SE PQ
         if (!$stmt || !$stmt->bind_param('iss', $this->documento, $this->apellido, $this->nombres)) {
             error_log("Error de preparación/bind (Persona): " . $this->mysqli->error);
             return false;
@@ -92,16 +93,21 @@ class Persona{
     public function getPersonaPorId($idPersona)
     {
         // Solo traemos el nombre que necesitamos para el saludo
-        $sql = "SELECT nombres FROM Persona WHERE idPersona = ?";
+        $sql = "SELECT nombres, rol FROM Persona WHERE idPersona = ?";
         $stmt = $this->mysqli->prepare($sql);
+        if (!$stmt) {
+             // Si falla el prepare (ej. la columna 'rol' no existe)
+             error_log("Error de preparación SQL (getPersonaPorId): " . $this->mysqli->error);
+             return false;
+        }
         $stmt->bind_param('i', $idPersona);
         $stmt->execute();
         $resultado = $stmt->get_result();
 
-        if ($resultado && $resultado->num_rows > 0) {
+if ($resultado && $resultado->num_rows > 0) {
             $persona = $resultado->fetch_assoc();
             $stmt->close();
-            return $persona;
+            return $persona; // Devuelve ['nombres' => '...', 'rol' => 'admin']
         }
         
         $stmt->close();
@@ -124,7 +130,101 @@ class Persona{
         return false;
     }
     
+    public function toArray()
+    {
+        return [
+            'idPersona' => $this->idPersona ?? null,
+            'documento' => $this->documento ?? null,
+            'apellido'  => $this->apellido ?? null,
+            'nombres'   => $this->nombres ?? null
+        ];
+    }
+
     // ... (Mantén el resto de los métodos update y delete)
+}
+// =======================================================================
+// CLASE LIBRO
+// =======================================================================
+class Libro{
+    
+    private $idlibro;
+    private $titulo;
+    private $autor;
+    private $editorial; 
+    private $mysqli;
+
+    public function __construct()
+    {
+        $this->mysqli = Conexion::obtenerConexion();
+    }
+
+    public function setIdLibro($idlibro)
+    {
+        if (ctype_digit($idlibro)) {
+            $this->idlibro = $idlibro;
+        }
+    }
+
+    public function setTitulo($titulo)
+    {
+        $this->titulo = trim($titulo);
+
+    }
+
+    public function setAutor($autor)
+    {
+        if (ctype_alpha(str_replace(' ', '', $autor))) {
+            $this->autor = $autor;
+        }
+    }
+
+    public function setEditorial($editorial)
+    {
+        if (ctype_alpha(str_replace(' ', '', $editorial))) {
+            $this->editorial = $editorial;
+        }
+    }
+
+    public function getall()
+    {
+        $sql = "SELECT * FROM Libro"; // Usamos 'Libro' (Mayúscula)
+        if ($resultado = $this->mysqli->query($sql)) {
+            $libros = [];
+            while ($fila = $resultado->fetch_assoc()) {
+                $libros[] = $fila;
+            }
+            $resultado->free();
+            return $libros;
+        }
+        return false;
+    }
+
+    public function save()
+    {
+        $sql = "INSERT INTO Libro (Titulo, Autor, Editorial) VALUES (?, ?, ?)";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('sss', $this->titulo, $this->autor, $this->editorial);
+        $stmt->execute();
+        $stmt->close();
+    }
+
+    public function update()
+    {
+        $sql = "UPDATE Libro SET Titulo = ?, Autor = ?, Editorial = ? WHERE idlibro = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('sssi', $this->titulo, $this->autor, $this->editorial, $this->idlibro);
+        $stmt->execute();
+        $stmt->close();
+    }
+    
+    public function deleteLibroPorId($idLibro)
+    {
+        $sql = "DELETE FROM Libro WHERE idlibro = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        $stmt->bind_param('i', $idLibro);
+        $stmt->execute();
+        $stmt->close();
+    }
 }
 
 // =======================================================================
