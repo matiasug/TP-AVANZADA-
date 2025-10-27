@@ -7,10 +7,10 @@
 
 class Conexion {
     private static $mysqli;
-    private static $host = '127.0.0.1';
-    private static $user = 'root';
-    private static $pass = ''; 
-    private static $db = '2025_grupo1'; 
+    private static $host = 'fcytpa.uader.edu.ar';
+    private static $user = '2025_grupo1';
+    private static $pass = 'gRupp2#0348*'; 
+    private static $db = '2025_grupo1';
 
     public static function obtenerConexion() {
         if (!isset(self::$mysqli)) {
