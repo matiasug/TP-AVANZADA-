@@ -7,10 +7,10 @@
 
 class Conexion {
     private static $mysqli;
-    private static $host = 'localhost'; // Servidor local
-    private static $user = 'root';      // Usuario por defecto en XAMPP
-    private static $pass = '';          // Contraseña por defecto en XAMPP es vacía
-    private static $db = '2025_grupo1'; // El nombre de la base de datos que creaste en tu phpMyAdmin
+    private static $host = 'fcytpa.uader.edu.ar';
+    private static $user = '2025_grupo1';
+    private static $pass = 'gRupp2#0348*';
+    private static $db = '2025_grupo1';
 
     public static function obtenerConexion() {
         if (!isset(self::$mysqli)) {
