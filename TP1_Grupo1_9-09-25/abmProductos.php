@@ -150,37 +150,18 @@ if (file_exists(__DIR__ . '/Includes/header.php')) include __DIR__ . '/Includes/
     <div class="card shadow-lg rounded-4 p-4" style="background: #f6fff9; border: 2px solid #856133;">
         <div class="card-body">
             <h2 class="fw-bold text-center mb-4" style="color: #856133; -webkit-text-stroke: 1.5px #6e5215ff; font-size: 2rem;">
-                ABM Libros
+                Nuestra Colección de Libros
             </h2>
+            
+            <div class="mb-3 d-flex justify-content-between">
+                <a href="productsForm.php" class="btn btn-primary fw-bold">Agregar Nuevo Libro</a>
+                <a href="inicio.php" class="btn btn-outline-secondary fw-bold">Volver al Dashboard</a>
+            </div>
 
             <?php if ($flashMsg): ?><div class="alert alert-success"><?php echo htmlspecialchars($flashMsg); ?></div><?php endif; ?>
             <?php if ($flashError): ?><div class="alert alert-danger"><?php echo htmlspecialchars($flashError); ?></div><?php endif; ?>
 
-            <div class="row">
-                <!-- Formulario de Alta/Edición -->
-                <div class="col-md-5">
-                    <h4><?php echo $es_admin ? 'Nuevo / Editar Libro' : 'Agregar Nuevo Libro'; ?></h4>
-                    <form method="post" id="form-libro" enctype="multipart/form-data">
-                        <input type="hidden" name="action" value="save" id="form-action">
-                        <input type="hidden" name="idlibro" id="idlibro" value="">
-                        <input type="hidden" name="csrf_token" value="<?php echo $token; ?>">
-
-                        <div class="mb-3"><label class="form-label">Título</label><input type="text" name="titulo" id="titulo" class="form-control" required></div>
-                        <div class="mb-3"><label class="form-label">Autor</label><input type="text" name="autor" id="autor" class="form-control" required></div>
-                        <div class="mb-3"><label class="form-label">Editorial</label><input type="text" name="editorial" id="editorial" class="form-control" required></div>
-                        <div class="mb-3"><label class="form-label">Archivo del Libro (PDF/TXT)</label><input type="file" name="archivo_libro" id="archivo_libro" class="form-control" accept=".pdf,.txt"></div>
-
-                        <button type="submit" class="btn btn-primary">Guardar</button>
-                        <?php if ($es_admin): // El botón de limpiar solo es útil para el admin que edita ?>
-                        <button type="button" id="btn-cancel" class="btn btn-secondary">Limpiar</button>
-                        <?php endif; ?>
-                    </form>
-                </div>
-
-                <!-- Listado de Libros -->
-                <div class="col-md-7">
-                    <h4>Listado de Libros</h4>
-                    <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
+            <div class="table-responsive mt-4">
                         <table id="tabla-libros" class="table table-striped align-middle">
                             <thead><tr><th>Archivo</th><th>Título</th><th>Autor</th><th>Editorial</th><th>Acciones</th></tr></thead>
                             <tbody>
@@ -210,39 +191,14 @@ if (file_exists(__DIR__ . '/Includes/header.php')) include __DIR__ . '/Includes/
                                 </tr>
                                 <?php endforeach; else: ?>
                                 <tr><td colspan="5">No hay libros registrados.</td></tr>
+                                <tr><td colspan="5" class="text-center text-muted fst-italic">Aún no se han añadido libros. ¡Anímate a ser el primero!</td></tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
-                    </div>
-                    <a href="inicio.php" class="btn btn-outline-secondary fw-bold mt-3">Volver al Dashboard</a>
-                </div>
             </div>
         </div>
     </div>
 </main>
-
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-    <?php if ($es_admin): // El script para editar solo se necesita si es admin ?>
-    document.querySelectorAll('.btn-edit').forEach(function(btn){
-        btn.addEventListener('click', function(){
-            document.getElementById('idlibro').value = this.dataset.id;
-            document.getElementById('titulo').value = this.dataset.titulo;
-            document.getElementById('autor').value = this.dataset.autor;
-            document.getElementById('editorial').value = this.dataset.editorial;
-            document.getElementById('form-action').value = 'update';
-            document.querySelector('h4').scrollIntoView({ behavior: 'smooth' });
-        });
-    });
-
-    document.getElementById('btn-cancel').addEventListener('click', function(){
-        document.getElementById('form-libro').reset();
-        document.getElementById('idlibro').value = '';
-        document.getElementById('form-action').value = 'save';
-    });
-    <?php endif; ?>
-});
-</script>
 
 <script>
 $(document).ready(function() {

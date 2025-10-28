@@ -7,10 +7,10 @@
 
 class Conexion {
     private static $mysqli;
-    private static $host = 'fcytpa.uader.edu.ar';
-    private static $user = '2025_grupo1';
-    private static $pass = 'gRupp2#0348*'; 
-    private static $db = '2025_grupo1';
+    private static $host = 'localhost'; // Servidor local
+    private static $user = 'root';      // Usuario por defecto en XAMPP
+    private static $pass = '';          // Contraseña por defecto en XAMPP es vacía
+    private static $db = '2025_grupo1'; // El nombre de la base de datos que creaste en tu phpMyAdmin
 
     public static function obtenerConexion() {
         if (!isset(self::$mysqli)) {
@@ -399,6 +399,22 @@ class DatosPersona{
         $stmt->close();
         return $success;
     }
+
+    public function updatePassword()
+    {
+        $sql = "UPDATE DatosPersona SET pass = ? WHERE idPersona = ?";
+        $stmt = $this->mysqli->prepare($sql);
+        if (!$stmt) {
+            error_log("Error de preparación SQL (DatosPersona->updatePassword): " . $this->mysqli->error);
+            return false;
+        }
+        // La contraseña ya viene hasheada desde el método setPass()
+        $stmt->bind_param('si', $this->pass, $this->idPersona);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
+
     // Método para verificar Login (Correcto)
     public function verificarLogin($email, $pass)
     {

@@ -7,6 +7,13 @@
      <link href="bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
      <link href="css/estilos.css" rel="stylesheet">
 
+     <!-- Íconos de Bootstrap (local) -->
+     <link rel="stylesheet" href="bootstrap/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+     <style>
+       .password-wrapper { position: relative; }
+       .toggle-password { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer; }
+     </style>
+
      <!-- DataTables CSS -->
      <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css">
  </head>

@@ -5,20 +5,19 @@
     if (empty($_SESSION['token'])) {
         $_SESSION['token'] = bin2hex(random_bytes(32));
     }
+    // Mensaje de registro exitoso
+    $registro_msg = $_SESSION['registro_exitoso'] ?? '';
+    unset($_SESSION['registro_exitoso']);
     $token = $_SESSION['token'];
 ?> 
 
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light">
-   <?php require_once("./Includes/header.php")?>
-      <script src="Verificar.js"></script>
-      <script src="SHA512.js"></script>
-      <link href="bootstrap/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
-      <link href="css/estilos.css" rel="stylesheet">
-    
+<?php require_once("./Includes/header.php"); ?>
 
 <body class="d-flex flex-column min-vh-100"
       style="background: url('imgs/fondo1.jpg') no-repeat center center fixed; background-size: cover;">
+
 
   
   <main class="flex-fill d-flex justify-content-center align-items-center">
@@ -47,6 +46,10 @@
   </script>
 <?php endif; ?>
 
+<?php if ($registro_msg): ?>
+    <div class="alert alert-success text-center fw-bold"><?php echo htmlspecialchars($registro_msg); ?></div>
+<?php endif; ?>
+
 
         <form id="formulario1" action="ProcesarLogin.php" method="POST">
 
@@ -58,7 +61,10 @@
  
           <div class="mb-3">
             <label for="cont" class="form-label">Contraseña</label>
-            <input type="password" id="cont" name="cont" class="form-control" placeholder="password" required>
+            <div class="password-wrapper">
+              <input type="password" id="cont" name="cont" class="form-control" placeholder="password" required>
+              <i class="bi bi-eye-slash toggle-password" id="togglePassword"></i>
+            </div>
           </div>
 
           <div class="mb-3">
@@ -77,5 +83,25 @@
     </div>
 
   </main>
+
+<script src="SHA512.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#cont');
+
+    togglePassword.addEventListener('click', function () {
+        // Cambiar el tipo del input
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        // Cambiar el ícono del ojo
+        this.classList.toggle('bi-eye');
+        this.classList.toggle('bi-eye-slash');
+    });
+});
+</script>
   
-<?php require_once('./Includes/footer.php') ?>
+<?php require_once('./Includes/footer.php'); ?>
+</body>
+</html>
